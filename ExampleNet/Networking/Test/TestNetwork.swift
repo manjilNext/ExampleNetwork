@@ -6,15 +6,30 @@
 //
 
 import Foundation
+import HandyJSON
 
-struct CatModel: Codable {
-    let id: String?
-    let url: String?
-    let width: Int?
-    let height: Int?
+struct CatService: Service {
+    var name: String {
+        ""
+    }
+
+    var router: NetworkingRouter
 }
 
-class MyTokenManager: TokenManageable {
+struct CatModel: HandyJSON {
+    var id: String?
+    var url: String?
+    var width: Int?
+    var height: Int?
+
+    var data: [CatModel] = []
+
+    init() {
+
+    }
+}
+
+class TokenManager: TokenManageable {
     func refreshToken() async -> Bool {
         return true
     }
@@ -32,13 +47,13 @@ extension NetworkingRouter {
     var headers: [String: String] { [:] }
 }
 
-enum CatApiService: NetworkingRouter {
+enum CatRouter: NetworkingRouter {
     case getCatInfo
 
     var path: String {
         switch self {
         case .getCatInfo:
-            return "v1/images/search"
+            return "cats"
         }
     }
 
@@ -68,33 +83,19 @@ enum CatApiService: NetworkingRouter {
 class TestNetwork: ObservableObject {
     @Published var catImages: [CatModel] = []
 
+    @MainActor
     func fetchCatImages() async {
-        let tokenManager = MyTokenManager()
-        let config = NetworkingConfiguration(baseURL: "https://api.thecatapi.com/", tokenManageable: tokenManager)
-        NetworkingDefault.initialize(with: config)
 
-        do {
-            // Create the service
-            let service = CatApiService.getCatInfo
 
-            // Perform network request
-            let (data, _) = try await URLSession.shared.data(from: URL(string: config.baseURL + service.path)!)
+        let service = CatRouter.getCatInfo
 
-            // Decode response using Codable
-            let catModels = try JSONDecoder().decode([CatModel].self, from: data)
-            DispatchQueue.main.async {
-                self.catImages = catModels
-            }
-            for catModel in catModels {
-                print("--------------------------------------------------------")
-                print("ID: \(catModel.id ?? "No ID")")
-                print("URL: \(catModel.url ?? "No URL")")
-                print("Width: \(catModel.width ?? 0)")
-                print("Height: \(catModel.height ?? 0)")
-                print("--------------------------------------------------------")
-            }
-        } catch {
-            print("An error occurred: \(error)")
+        let result = await NetworkingDefault.default.dataRequest(service: CatService.init(router: service), type: CatModel.self)
+
+        switch result {
+        case .success(let data):
+            catImages = data.data
+        case .failure(let error):
+            print(error.localizedDescription)
         }
     }
 
@@ -109,3 +110,4 @@ class TestNetwork: ObservableObject {
 //        }
 //    }
 }
+

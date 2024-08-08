@@ -7,9 +7,6 @@
 
 import Foundation
 public class NetworkingDefault: NetworkConformable {
-    public func dataRequest<T>(service: Service, type: T.Type) async throws -> T? {
-        nil
-    }
     
     
     /// make the instance shared

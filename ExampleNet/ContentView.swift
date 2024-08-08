@@ -59,7 +59,3 @@ struct ContentView: View {
         await testNetwork.fetchCatImages()
     }
 }
-
-#Preview {
-    ContentView()
-}

@@ -85,13 +85,13 @@ public struct RequestMaker {
                 }
 
                 let jsonString = data.prettyPrintedJSONString
-                if O.self is String.Type, let string = String(data: data, encoding: .utf8), let value = string as? O {
-                    let networkResponse = NetworkingResponse<O>(router: service.router, data: data, request: request, response: response, object: value)
-                }
-                if let decodableType = O.self as? Decodable.Type {
-                    let object = try JSONDecoder().decode(decodableType, from: data)
-                    let networkResponse = NetworkingResponse<O>(router: service.router, data: data, request: request, response: response, object: object as? O)
-                }
+//                if O.self is String.Type, let string = String(data: data, encoding: .utf8), let value = string as? O {
+//                    let networkResponse = NetworkingResponse<O>(router: service.router, data: data, request: request, response: response, object: value)
+//                }
+//                if let decodableType = O.self as? Decodable.Type {
+//                    let object = try JSONDecoder().decode(decodableType, from: data)
+//                    let networkResponse = NetworkingResponse<O>(router: service.router, data: data, request: request, response: response, object: object as? O)
+//                }
 
                 return checkStatus(statusCode: statusCode ?? 0, jsonString: jsonString)
 
